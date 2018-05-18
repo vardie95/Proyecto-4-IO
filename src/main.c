@@ -1,12 +1,32 @@
 #include <gtk/gtk.h>
-
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 GtkWidget       *mainW;
-GtkWidget       *VariablesW;
-
-
-GtkWidget *gTextName;
-GtkWidget *gComboValuesItem;
+GtkWidget       *gTextName;
+GtkWidget       *gComboVarItem;
+GtkWidget       *gComboResItem;
 GtkBuilder      *builder; 
+
+GtkWidget       *VariablesW;
+GtkWidget       ***initialTable;
+GtkWidget       *tableData;
+GtkWidget       *containerTable;
+
+GtkWidget       *FuncionW;
+GtkWidget       ***initialTableFunc;
+GtkWidget       *tableDataFunc;
+GtkWidget       *containerTableFunc;
+
+
+
+
+int selectVariables;
+int selectRestricciones;
+const char *rowHeader[2] = {"Variables"};
+
+const char *tablenameVar;
+int *FunctionTable;
 
 int main(int argc, char *argv[])
 {
@@ -18,10 +38,28 @@ int main(int argc, char *argv[])
     gtk_builder_add_from_file (builder, "glade/main.glade", NULL);
  
     mainW= GTK_WIDGET(gtk_builder_get_object(builder, "window_main"));
-    gtk_builder_connect_signals(builder, NULL);
-    VariablesW= GTK_WIDGET(gtk_builder_get_object(builder, "window_var"));
+    
     gTextName = GTK_WIDGET(gtk_builder_get_object(builder, "TFName"));
-    gComboValuesItem = GTK_WIDGET(gtk_builder_get_object(builder, "CBVariables"));
+    gComboVarItem = GTK_WIDGET(gtk_builder_get_object(builder, "CBVariables"));
+    gtk_spin_button_set_range (GTK_SPIN_BUTTON(gComboVarItem),1,8);
+    gtk_spin_button_set_increments (GTK_SPIN_BUTTON(gComboVarItem),1,1);
+
+    gComboResItem= GTK_WIDGET(gtk_builder_get_object(builder, "CBRestricciones"));
+    gtk_spin_button_set_range (GTK_SPIN_BUTTON(gComboResItem),1,10);
+    gtk_spin_button_set_increments (GTK_SPIN_BUTTON(gComboResItem),1,1);
+
+    VariablesW= GTK_WIDGET(gtk_builder_get_object(builder, "window_var"));
+    gtk_builder_connect_signals(builder, NULL);
+    containerTable = GTK_WIDGET(gtk_builder_get_object(builder, "containerTable"));
+    gtk_builder_connect_signals(builder, NULL);
+
+    FuncionW= GTK_WIDGET(gtk_builder_get_object(builder, "window_fun"));
+    gtk_builder_connect_signals(builder, NULL);
+    containerTableFunc = GTK_WIDGET(gtk_builder_get_object(builder, "containerFuntionTable"));
+    gtk_builder_connect_signals(builder, NULL);
+    
+
+    gtk_builder_connect_signals(builder, NULL);
     g_object_unref(builder);
     gtk_widget_show(mainW);                
     gtk_main();
@@ -29,13 +67,106 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+void createSetNodeData()
+{
+  int keys = selectVariables;
+  initialTable = calloc(keys,sizeof(GtkWidget**));
+  char columnVarName[4];
+
+  tableData = gtk_grid_new ();
+  gtk_container_add (GTK_CONTAINER (containerTable), tableData);
+
+  for(int j = 0; j < keys; j++) {
+    initialTable[j] = calloc(2,sizeof(GtkWidget*));
+  }
+
+  for(int row =0; row < keys; row++) 
+  {
+    for(int column=0; column < 2; column++) 
+    {
+      if (column == 0){
+        initialTable[row][column] = gtk_entry_new();
+        gtk_entry_set_width_chars(GTK_ENTRY(initialTable[row][column]),10);
+        gtk_grid_attach (GTK_GRID (tableData),initialTable[row][column] , column, row, 1, 1);
+      } else{
+
+        initialTable[row][column] = gtk_entry_new();
+        gtk_entry_set_width_chars(GTK_ENTRY(initialTable[row][column]),50);
+        gtk_grid_attach (GTK_GRID (tableData),initialTable[row][column] , column, row, 1, 1);
+      }
+
+      if (column == 0){
+        sprintf(columnVarName, "X%d", row + 1);
+        gtk_entry_set_text (GTK_ENTRY(initialTable[row][column]),columnVarName);
+        gtk_widget_set_name(initialTable[row][column],"header");
+        gtk_widget_set_sensitive(initialTable[row][column],FALSE);
+      }
+    }
+  }
+
+}
+void createSetNodeDataFuntion()
+{
+  int keys = selectVariables;
+  initialTableFunc = calloc(keys,sizeof(GtkWidget**));
+  char columnVarName[4];
+
+  tableDataFunc = gtk_grid_new ();
+  gtk_container_add (GTK_CONTAINER (containerTableFunc), tableDataFunc);
+
+  for(int j = 0; j < 2; j++) {
+    initialTableFunc[j] = calloc(2,sizeof(GtkWidget*));
+  }
+
+  for(int row = 0; row < 2; row++) 
+  {
+    for(int column=0; column <  keys ; column++) 
+    {
+      initialTableFunc[row][column] = gtk_entry_new();
+      gtk_entry_set_width_chars(GTK_ENTRY(initialTableFunc[row][column]),8);
+      gtk_grid_attach (GTK_GRID (tableDataFunc),initialTableFunc[row][column] , column, row, 1, 1);
+
+      if (row == 0){
+        sprintf(columnVarName, "X%d", column + 1);
+        gtk_entry_set_text (GTK_ENTRY(initialTableFunc[row][column]),columnVarName);
+        gtk_widget_set_name(initialTableFunc[row][column],"header");
+        gtk_widget_set_sensitive(initialTableFunc[row][column],FALSE);
+      }
+    }
+  }
+
+}
+void getNombresVar(){
+    ///r_table =(char*)malloc ( selectVariables * sizeof (char)); 
+    const gchar* texto;
+    for(int i = 0; i < selectVariables;i++){
+        texto = gtk_entry_get_text(GTK_ENTRY(initialTable[i][1]));
+        //sprintf(tablenameVar[i][0], "%s\n", texto); 
+        ///sprintf("%s\n",texto);
+
+    }
+
+
+}
+
+void getFuntionNumber(){
+    FunctionTable = malloc(sizeof(float *) * selectVariables);
+    
+    int number;
+    for(int i = 0; i < selectVariables;i++){
+        FunctionTable[i] = atoi(gtk_entry_get_text(GTK_ENTRY(initialTableFunc[1][i])));
+        printf("%d\n",FunctionTable[i]);
+    }
+}
+
 void on_BTNAceptar_clicked() {
             const gchar* texto;
-            const gchar* selectVariables;
+            
             texto = gtk_entry_get_text(GTK_ENTRY(gTextName));
-            printf("%s\n",texto);
-            selectVariables = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(gComboValuesItem));
-            printf("%s\n",selectVariables);
+            ///printf("%s\n",texto);
+            selectVariables = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(gComboVarItem));
+            selectRestricciones = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(gComboResItem));
+            //printf("%d\n",selectVariables);
             if ((texto == NULL) || (texto[0] == '\0')) {
                     GtkWidget* dialog;
                     GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
@@ -45,15 +176,32 @@ void on_BTNAceptar_clicked() {
 gtk_dialog_run (GTK_DIALOG (dialog));
 gtk_widget_destroy (dialog);
             }else{
-                gtk_widget_show(VariablesW); 
                 gtk_widget_hide(mainW);
+                createSetNodeData();
+                gtk_widget_show_all(VariablesW);
+                
             }
             
 }
+
+void btnAceptarVar_clicked(){
+
+    gtk_widget_hide(VariablesW);
+    getNombresVar();
+    createSetNodeDataFuntion();
+    gtk_widget_show_all(FuncionW);
+
+}
+void BTN_fun_Aceptar_clicked(){
+    getFuntionNumber();
+
+}
+
 
  
 // called when window is closed
 void on_window_main_destroy()
 {
+
     gtk_main_quit();
 }
