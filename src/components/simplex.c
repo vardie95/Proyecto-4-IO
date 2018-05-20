@@ -91,12 +91,15 @@ void apply_basic_division(double** table, int rows, int columns)
 void apply_algebraic_operations(double** table, int rows, int columns)
 {
   double temp_value;
-  for (int i = 0; i < rows && i != actual_row; i++)
+  for (int i = 0; i < rows; i++)
   {
-    temp_value = -1.0 * table[i][actual_column];
-    for (int j = 0; j < columns; j++)
-    {
-      table[i][j] = table[i][j] + (temp_value*table[actual_row][j]);
+    if (i != actual_row){
+      temp_value = -1.0 * table[i][actual_column];
+      printf("i = %d | actual_row = %d\n", i, actual_row);
+      for (int j = 0; j < columns; j++)
+      {
+        table[i][j] = table[i][j] + (temp_value*table[actual_row][j]);
+      }
     }
   }
 }
