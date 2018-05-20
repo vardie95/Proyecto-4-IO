@@ -82,7 +82,7 @@ void pruebaSimplex()
   table[0][0]=1.0;table[0][1]=-3.0;table[0][2]=-4.0;table[0][3]=0.0;table[0][4]=0.0;table[0][5]=0.0;
   table[1][0]=0.0;table[1][1]=1.0;table[1][2]=1.0;table[1][3]=1.0;table[1][4]=0.0;table[1][5]=40.0;
   table[1][0]=0.0;table[1][1]=1.0;table[1][2]=2.0;table[1][3]=0.0;table[1][4]=1.0;table[1][5]=60.0;
-  max_simplex(table, m, n);
+  simplex(table, m, n, false);
 }
 
 void createSetNodeData()

@@ -5,10 +5,12 @@
 
 int actual_column = 0;
 int actual_row = 0;
+double z_value;
 bool negs_left;
+bool min;
 
 // Functions declaration -------------------------------------------------------
-void max_simplex(double** table, int rows, int columns);
+void simplex(double** table, int rows, int columns, bool min);
 void most_negative_column(double* table_row, int columns);
 void define_base_row(double** table, int rows, int columns);
 void apply_basic_division(double** table, int rows, int columns);
@@ -17,7 +19,7 @@ bool verify_negs(double* table_row, int columns);
 void print_table(double** table, int m, int n);
 
 // Functions definition --------------------------------------------------------
-void max_simplex(double** table, int rows, int columns)
+void simplex(double** table, int rows, int columns, bool min)
 {
   negs_left = verify_negs(table[0], columns);
   print_table(table, rows, columns);
@@ -30,7 +32,13 @@ void max_simplex(double** table, int rows, int columns)
     negs_left = verify_negs(table[0], columns);
     print_table(table, rows, columns);
   }
-  printf("Z = %f\n", table[0][columns - 1]);
+  if (min == true)
+  {
+    z_value = -1.0 * table[0][columns - 1];
+  } else {
+    z_value = table[0][columns - 1];
+  }
+  printf("Z = %f\n", z_value);
 }
 
 void most_negative_column(double* table_row, int columns)
