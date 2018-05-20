@@ -8,6 +8,7 @@ int actual_row = 0;
 double z_value;
 bool negs_left;
 bool min;
+bool unbounded = false;
 
 // Functions declaration -------------------------------------------------------
 void simplex(double** table, int rows, int columns, bool min);
@@ -27,18 +28,29 @@ void simplex(double** table, int rows, int columns, bool min)
   {
     most_negative_column(table[0], columns);
     define_base_row(table, rows, columns);
+    if (unbounded == true)
+    {
+      break;
+    }
     apply_basic_division(table, rows, columns);
     apply_algebraic_operations(table, rows, columns);
     negs_left = verify_negs(table[0], columns);
     print_table(table, rows, columns);
   }
-  if (min == true)
+  if (unbounded == false)
   {
-    z_value = -1.0 * table[0][columns - 1];
-  } else {
-    z_value = table[0][columns - 1];
+    if (min == true)
+    {
+      z_value = -1.0 * table[0][columns - 1];
+    } else {
+      z_value = table[0][columns - 1];
+    }
+    printf("Z = %f\n", z_value);
   }
-  printf("Z = %f\n", z_value);
+  else
+  {
+    printf("%s\n", "Unbounded problem...");
+  }
 }
 
 void most_negative_column(double* table_row, int columns)
@@ -76,6 +88,10 @@ void define_base_row(double** table, int rows, int columns)
         }
       }
     }
+  }
+  if (actual_row == 0)
+  {
+    unbounded = true;
   }
 }
 
