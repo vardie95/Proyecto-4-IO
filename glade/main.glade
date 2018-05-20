@@ -202,6 +202,64 @@ Variables</property>
       </object>
     </child>
   </object>
+  <object class="GtkWindow" id="window_res">
+    <property name="width_request">750</property>
+    <property name="height_request">500</property>
+    <property name="can_focus">False</property>
+    <property name="window_position">center</property>
+    <child>
+      <object class="GtkFixed">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <child>
+          <object class="GtkScrolledWindow" id="containerRestTable">
+            <property name="width_request">750</property>
+            <property name="height_request">350</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="shadow_type">in</property>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="x">11</property>
+            <property name="y">80</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="check_Intermedias">
+            <property name="label" translatable="yes">Mostar tablas intermedias</property>
+            <property name="width_request">100</property>
+            <property name="height_request">8</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="draw_indicator">True</property>
+          </object>
+          <packing>
+            <property name="x">140</property>
+            <property name="y">45</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="btnAceptarRes">
+            <property name="label" translatable="yes">Aceptar</property>
+            <property name="width_request">100</property>
+            <property name="height_request">8</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <signal name="clicked" handler="btnAceptarRes_clicked" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">650</property>
+            <property name="y">40</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
   <object class="GtkWindow" id="window_var">
     <property name="can_focus">False</property>
     <property name="window_position">center</property>

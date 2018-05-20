@@ -1,5 +1,5 @@
 # change application name here (executable output name)
-TARGET=prueba
+TARGET=proyecto4
  
 # compiler
 CC=gcc

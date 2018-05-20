@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
+#include "components/simplex.c"
 GtkWidget       *mainW;
 GtkWidget       *gTextName;
 GtkWidget       *gComboVarItem;
@@ -18,6 +20,11 @@ GtkWidget       ***initialTableFunc;
 GtkWidget       *tableDataFunc;
 GtkWidget       *containerTableFunc;
 
+GtkWidget       *RestrictionW;
+GtkWidget       ***initialTableRes;
+GtkWidget       *tableDataRes;
+GtkWidget       *containerTableRes;
+
 
 
 
@@ -27,6 +34,7 @@ const char *rowHeader[2] = {"Variables"};
 
 const char *tablenameVar;
 int *FunctionTable;
+int **RestrictionTable;
 
 int main(int argc, char *argv[])
 {
@@ -56,6 +64,11 @@ int main(int argc, char *argv[])
     FuncionW= GTK_WIDGET(gtk_builder_get_object(builder, "window_fun"));
     gtk_builder_connect_signals(builder, NULL);
     containerTableFunc = GTK_WIDGET(gtk_builder_get_object(builder, "containerFuntionTable"));
+    gtk_builder_connect_signals(builder, NULL);
+
+    RestrictionW= GTK_WIDGET(gtk_builder_get_object(builder, "window_res"));
+    gtk_builder_connect_signals(builder, NULL);
+    containerTableRes = GTK_WIDGET(gtk_builder_get_object(builder, "containerRestTable"));
     gtk_builder_connect_signals(builder, NULL);
 
 
@@ -123,27 +136,27 @@ void createSetNodeData()
   }
 
 }
-void createSetNodeDataFuntion()
-{
+
+void createSetNodeDataFuntion(){
   int keys = selectVariables;
-  initialTableFunc = calloc(keys,sizeof(GtkWidget**));
+  initialTableFunc = calloc(10,sizeof(GtkWidget**));
   char columnVarName[4];
 
   tableDataFunc = gtk_grid_new ();
   gtk_container_add (GTK_CONTAINER (containerTableFunc), tableDataFunc);
 
-  for(int j = 0; j < 2; j++) {
+  for(int j = 0; j < keys + 1; j++) {
     initialTableFunc[j] = calloc(2,sizeof(GtkWidget*));
   }
 
-  for(int row = 0; row < 2; row++)
+  for(int row =0; row < 2; row++)
   {
-    for(int column=0; column <  keys ; column++)
+    for(int column=0; column < keys ; column++)
     {
-      initialTableFunc[row][column] = gtk_entry_new();
-      gtk_entry_set_width_chars(GTK_ENTRY(initialTableFunc[row][column]),8);
-      gtk_grid_attach (GTK_GRID (tableDataFunc),initialTableFunc[row][column] , column, row, 1, 1);
-
+        initialTableFunc[row][column] = gtk_entry_new();
+        gtk_entry_set_width_chars(GTK_ENTRY(initialTableFunc[row][column]),9);
+        gtk_grid_attach (GTK_GRID (tableDataFunc),initialTableFunc[row][column] , column, row, 1, 1);
+       
       if (row == 0){
         sprintf(columnVarName, "X%d", column + 1);
         gtk_entry_set_text (GTK_ENTRY(initialTableFunc[row][column]),columnVarName);
@@ -154,6 +167,51 @@ void createSetNodeDataFuntion()
   }
 
 }
+
+void createSetNodeDataRestriccion(){
+  int keys = selectVariables;
+  int rest = selectRestricciones;
+  initialTableRes = calloc(13,sizeof(GtkWidget**));
+  char columnVarName[4];
+
+  tableDataRes = gtk_grid_new ();
+  gtk_container_add (GTK_CONTAINER (containerTableRes), tableDataRes);
+
+  for(int j = 0; j < keys + 4; j++) {
+    initialTableRes[j] = calloc(13,sizeof(GtkWidget*));
+  }
+
+  for(int row =0; row < rest +1; row++)
+  {
+    for(int column=0; column < keys + 2 ; column++)
+    {
+        initialTableRes[row][column] = gtk_entry_new();
+        gtk_entry_set_width_chars(GTK_ENTRY(initialTableRes[row][column]),9);
+        gtk_grid_attach (GTK_GRID (tableDataRes),initialTableRes[row][column] , column, row, 1, 1);
+       
+      if (row == 0){
+      	if( column == keys ){
+        	sprintf(columnVarName, "R");
+    	}else if (column == keys + 1 ){
+    		sprintf(columnVarName, " ");
+    	}else{
+    		sprintf(columnVarName, "X%d", column + 1);
+    	}
+        gtk_entry_set_text (GTK_ENTRY(initialTableRes[row][column]),columnVarName);
+        gtk_widget_set_name(initialTableRes[row][column],"header");
+        gtk_widget_set_sensitive(initialTableRes[row][column],FALSE);
+      }
+      if (column == keys && row != 0){
+      	sprintf(columnVarName, "=");
+      	gtk_entry_set_text (GTK_ENTRY(initialTableRes[row][column]),columnVarName);
+      }
+    }
+  }
+
+}
+
+
+
 void getNombresVar(){
     ///r_table =(char*)malloc ( selectVariables * sizeof (char));
     const gchar* texto;
@@ -174,6 +232,30 @@ void getFuntionNumber(){
     for(int i = 0; i < selectVariables;i++){
         FunctionTable[i] = atoi(gtk_entry_get_text(GTK_ENTRY(initialTableFunc[1][i])));
         printf("%d\n",FunctionTable[i]);
+    }
+}
+
+void getRestricNumber(){
+	int keys = selectVariables;
+  	int rest = selectRestricciones;
+    RestrictionTable = malloc(sizeof(float *) * 14);
+    printf("Restricciones\n");
+    for (int i = 0; i < 14; i++)
+	{
+		RestrictionTable[i] = malloc(sizeof(float) * 14);
+
+	}
+
+    int number;
+    for(int i = 1; i < selectRestricciones + 1;i++){
+    	 for(int j = 0; j < selectVariables + 2;j++){
+    	 	if( j != selectVariables){
+        		RestrictionTable[i][j] = atoi(gtk_entry_get_text(GTK_ENTRY(initialTableRes[i][j])));
+        	printf("%d ",RestrictionTable[i][j]);
+        	}
+        	
+    	}
+    	printf(" \n");
     }
 }
 
@@ -208,11 +290,22 @@ void btnAceptarVar_clicked(){
     getNombresVar();
     createSetNodeDataFuntion();
     gtk_widget_show_all(FuncionW);
+    free(initialTable);
 
 }
 void BTN_fun_Aceptar_clicked(){
-    getFuntionNumber();
 
+    getFuntionNumber();
+    gtk_widget_hide(FuncionW);
+    createSetNodeDataRestriccion();
+    gtk_widget_show_all(RestrictionW);
+    free(initialTableFunc);
+
+
+}
+void btnAceptarRes_clicked(){
+	free(initialTableFunc);
+	getRestricNumber();
 }
 
 
