@@ -6,7 +6,7 @@ GtkWidget       *mainW;
 GtkWidget       *gTextName;
 GtkWidget       *gComboVarItem;
 GtkWidget       *gComboResItem;
-GtkBuilder      *builder; 
+GtkBuilder      *builder;
 
 GtkWidget       *VariablesW;
 GtkWidget       ***initialTable;
@@ -30,15 +30,15 @@ int *FunctionTable;
 
 int main(int argc, char *argv[])
 {
-    
- 
+
+
     gtk_init(&argc, &argv);
- 
+
     builder = gtk_builder_new();
     gtk_builder_add_from_file (builder, "glade/main.glade", NULL);
- 
+
     mainW= GTK_WIDGET(gtk_builder_get_object(builder, "window_main"));
-    
+
     gTextName = GTK_WIDGET(gtk_builder_get_object(builder, "TFName"));
     gComboVarItem = GTK_WIDGET(gtk_builder_get_object(builder, "CBVariables"));
     gtk_spin_button_set_range (GTK_SPIN_BUTTON(gComboVarItem),1,8);
@@ -57,14 +57,32 @@ int main(int argc, char *argv[])
     gtk_builder_connect_signals(builder, NULL);
     containerTableFunc = GTK_WIDGET(gtk_builder_get_object(builder, "containerFuntionTable"));
     gtk_builder_connect_signals(builder, NULL);
-    
+
 
     gtk_builder_connect_signals(builder, NULL);
     g_object_unref(builder);
-    gtk_widget_show(mainW);                
+    gtk_widget_show(mainW);
     gtk_main();
- 
+
+    pruebaSimplex();
     return 0;
+}
+
+void pruebaSimplex()
+{
+  int m = 3;
+  int n = 6;
+  double** table;
+  table = (double**) malloc(sizeof(double *) * m);
+  for (int i = 0; i < n; i++)
+	{
+		table[i] = (double*) malloc(sizeof(double) * n);
+	}
+  // simplex -------------------------------------------------------------------
+  table[0][0]=1.0;table[0][1]=-3.0;table[0][2]=-4.0;table[0][3]=0.0;table[0][4]=0.0;table[0][5]=0.0;
+  table[1][0]=0.0;table[1][1]=1.0;table[1][2]=1.0;table[1][3]=1.0;table[1][4]=0.0;table[1][5]=40.0;
+  table[1][0]=0.0;table[1][1]=1.0;table[1][2]=2.0;table[1][3]=0.0;table[1][4]=1.0;table[1][5]=60.0;
+  max_simplex(table, m, n);
 }
 
 void createSetNodeData()
@@ -80,9 +98,9 @@ void createSetNodeData()
     initialTable[j] = calloc(2,sizeof(GtkWidget*));
   }
 
-  for(int row =0; row < keys; row++) 
+  for(int row =0; row < keys; row++)
   {
-    for(int column=0; column < 2; column++) 
+    for(int column=0; column < 2; column++)
     {
       if (column == 0){
         initialTable[row][column] = gtk_entry_new();
@@ -118,9 +136,9 @@ void createSetNodeDataFuntion()
     initialTableFunc[j] = calloc(2,sizeof(GtkWidget*));
   }
 
-  for(int row = 0; row < 2; row++) 
+  for(int row = 0; row < 2; row++)
   {
-    for(int column=0; column <  keys ; column++) 
+    for(int column=0; column <  keys ; column++)
     {
       initialTableFunc[row][column] = gtk_entry_new();
       gtk_entry_set_width_chars(GTK_ENTRY(initialTableFunc[row][column]),8);
@@ -137,11 +155,11 @@ void createSetNodeDataFuntion()
 
 }
 void getNombresVar(){
-    ///r_table =(char*)malloc ( selectVariables * sizeof (char)); 
+    ///r_table =(char*)malloc ( selectVariables * sizeof (char));
     const gchar* texto;
     for(int i = 0; i < selectVariables;i++){
         texto = gtk_entry_get_text(GTK_ENTRY(initialTable[i][1]));
-        //sprintf(tablenameVar[i][0], "%s\n", texto); 
+        //sprintf(tablenameVar[i][0], "%s\n", texto);
         ///sprintf("%s\n",texto);
 
     }
@@ -151,7 +169,7 @@ void getNombresVar(){
 
 void getFuntionNumber(){
     FunctionTable = malloc(sizeof(float *) * selectVariables);
-    
+
     int number;
     for(int i = 0; i < selectVariables;i++){
         FunctionTable[i] = atoi(gtk_entry_get_text(GTK_ENTRY(initialTableFunc[1][i])));
@@ -161,7 +179,7 @@ void getFuntionNumber(){
 
 void on_BTNAceptar_clicked() {
             const gchar* texto;
-            
+
             texto = gtk_entry_get_text(GTK_ENTRY(gTextName));
             ///printf("%s\n",texto);
             selectVariables = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(gComboVarItem));
@@ -179,9 +197,9 @@ gtk_widget_destroy (dialog);
                 gtk_widget_hide(mainW);
                 createSetNodeData();
                 gtk_widget_show_all(VariablesW);
-                
+
             }
-            
+
 }
 
 void btnAceptarVar_clicked(){
@@ -198,7 +216,7 @@ void BTN_fun_Aceptar_clicked(){
 }
 
 
- 
+
 // called when window is closed
 void on_window_main_destroy()
 {
