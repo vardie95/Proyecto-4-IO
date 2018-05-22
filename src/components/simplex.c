@@ -20,6 +20,7 @@ void apply_basic_division(double** table, int rows, int columns);
 void apply_algebraic_operations(double** table, int rows, int columns);
 bool verify_negs(double* table_row, int columns);
 void verify_multiple_solutions(double** table, int rows, int columns);
+void get_multiple_solutions(double** table, int rows, int columns);
 void print_table(double** table, int m, int n);
 void set_num_variables(int num);
 
@@ -44,17 +45,22 @@ void simplex(double** table, int rows, int columns, bool min)
   if (unbounded == false)
   {
     verify_multiple_solutions(table, rows, columns);
+    printf("Column: %d\n", actual_column);
     if (multiple_solutions == false) {
       if (min == true)
       {
         z_value = -1.0 * table[0][columns - 1];
-      } else {
+      }
+      else
+      {
         z_value = table[0][columns - 1];
       }
       printf("Z = %f\n", z_value);
-    } else
+    }
+    else
     {
-      printf("%s\n", "Multiple solutions");
+      printf("%s\n", "Multiple solutions...");
+      get_multiple_solutions(table, rows, columns);
     }
   }
   else
@@ -175,6 +181,131 @@ void verify_multiple_solutions(double** table, int rows, int columns)
       }
     }
   }
+}
+
+void get_multiple_solutions(double** table, int rows, int columns)
+{
+  double solution_var_1[num_variables];
+  double solution_var_2[num_variables];
+  bool found_one;
+  bool canonic;
+  int canonic_i = 0;
+  for (int j = 1; j <= num_variables; j++)
+  {
+    found_one = false;
+    canonic = true;
+    if (table[0][j] != 0)
+    {
+        solution_var_1[j - 1] = 0;
+        canonic = false;
+    }
+    else
+    {
+      for (int i = 1; i < rows; i++)
+      {
+        if (found_one == false)
+        {
+          if (table[i][j] == 1)
+          {
+            found_one = true;
+            canonic_i = i;
+          }
+          else if (table[i][j] != 0)
+          {
+            solution_var_1[j - 1] = 0;
+            canonic = false;
+            break;
+          }
+        }
+        else
+        {
+          if (table[i][j] != 0)
+          {
+            solution_var_1[j - 1] = 0;
+            canonic = false;
+            break;
+          }
+        }
+        if (i == rows - 1 && canonic == true)
+        {
+          solution_var_1[j - 1] = table[canonic_i][columns - 1];
+        }
+      }
+    }
+  }
+  for (int i = 0; i < num_variables; i++)
+  {
+    printf("x_%d: %f\n", i + 1, solution_var_1[i]);
+  }
+  define_base_row(table, rows, columns);
+  apply_basic_division(table, rows, columns);
+  apply_algebraic_operations(table, rows, columns);
+  print_table(table, rows, columns);
+  canonic_i = 0;
+  for (int j = 1; j <= num_variables; j++)
+  {
+    found_one = false;
+    canonic = true;
+    if (table[0][j] != 0)
+    {
+        solution_var_2[j - 1] = 0;
+        canonic = false;
+    }
+    else
+    {
+      for (int i = 1; i < rows; i++)
+      {
+        if (found_one == false)
+        {
+          if (table[i][j] == 1)
+          {
+            found_one = true;
+            canonic_i = i;
+          }
+          else if (table[i][j] != 0)
+          {
+            solution_var_2[j - 1] = 0;
+            canonic = false;
+            break;
+          }
+        }
+        else
+        {
+          if (table[i][j] != 0)
+          {
+            solution_var_2[j - 1] = 0;
+            canonic = false;
+            break;
+          }
+        }
+        if (i == rows - 1 && canonic == true)
+        {
+          solution_var_2[j - 1] = table[canonic_i][columns - 1];
+        }
+      }
+    }
+  }
+  for (int i = 0; i < num_variables; i++)
+  {
+    printf("x_%d: %f\n", i + 1, solution_var_2[i]);
+  }
+  double solution_var_3[num_variables];
+  double solution_var_4[num_variables];
+  // Using alpha = 0.5 and 0.25
+  for (int i = 0; i < num_variables; i++)
+  {
+    solution_var_3[i] = 0.5 * solution_var_1[i] + (1-0.5) * solution_var_2[i];
+    solution_var_4[i] = 0.25 * solution_var_1[i] + (1-0.25) * solution_var_2[i];
+  }
+  for (int i = 0; i < num_variables; i++)
+  {
+    printf("x_%d: %f\n", i + 1, solution_var_3[i]);
+  }
+  for (int i = 0; i < num_variables; i++)
+  {
+    printf("x_%d: %f\n", i + 1, solution_var_4[i]);
+  }
+
 }
 
 void print_table(double** table, int m, int n)
