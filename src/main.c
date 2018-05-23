@@ -19,6 +19,7 @@ GtkWidget       *FuncionW;
 GtkWidget       ***initialTableFunc;
 GtkWidget       *tableDataFunc;
 GtkWidget       *containerTableFunc;
+GtkWidget       *VerbContainer;
 
 GtkWidget       *RestrictionW;
 GtkWidget       ***initialTableRes;
@@ -30,12 +31,13 @@ GtkWidget       *containerTableRes;
 
 int selectVariables;
 int selectRestricciones;
+int verbSelect;
 const char *rowHeader[2] = {"Variables"};
 
-const char *tablenameVar;
-int *FunctionTable;
-int **RestrictionTable;
-int *Restricciones;
+const char tablenameVar[10];
+int  FunctionTable[12];
+int RestrictionTable[13][13];
+int Restricciones[12];
 
 int main(int argc, char *argv[])
 {
@@ -65,6 +67,9 @@ int main(int argc, char *argv[])
     FuncionW= GTK_WIDGET(gtk_builder_get_object(builder, "window_fun"));
     gtk_builder_connect_signals(builder, NULL);
     containerTableFunc = GTK_WIDGET(gtk_builder_get_object(builder, "containerFuntionTable"));
+    gtk_builder_connect_signals(builder, NULL);
+
+    VerbContainer = GTK_WIDGET(gtk_builder_get_object(builder, "containerFuntionTable"));
     gtk_builder_connect_signals(builder, NULL);
 
     RestrictionW= GTK_WIDGET(gtk_builder_get_object(builder, "window_res"));
@@ -148,7 +153,7 @@ void createSetNodeDataFuntion(){
   gtk_container_add (GTK_CONTAINER (containerTableFunc), tableDataFunc);
 
   for(int j = 0; j < keys + 1; j++) {
-    initialTableFunc[j] = calloc(2,sizeof(GtkWidget*));
+    initialTableFunc[j] = calloc(10,sizeof(GtkWidget*));
   }
 
   for(int row =0; row < 2; row++)
@@ -219,7 +224,7 @@ void getNombresVar(){
     const gchar* texto;
     for(int i = 0; i < selectVariables;i++){
         texto = gtk_entry_get_text(GTK_ENTRY(initialTable[i][1]));
-        //sprintf(tablenameVar[i][0], "%s\n", texto);
+		///sprintf(tablenameVar[i],texto);
         ///sprintf("%s\n",texto);
 
     }
@@ -228,9 +233,7 @@ void getNombresVar(){
 }
 
 void getFuntionNumber(){
-    FunctionTable = malloc(sizeof(float *) * selectVariables);
 
-    int number;
     for(int i = 0; i < selectVariables;i++){
         FunctionTable[i] = atoi(gtk_entry_get_text(GTK_ENTRY(initialTableFunc[1][i])));
         printf("%d\n",FunctionTable[i]);
@@ -240,15 +243,7 @@ void getFuntionNumber(){
 void getRestricNumber(){
 	int keys = selectVariables + 2;
   	int rest = selectRestricciones + 1 ;
-    RestrictionTable = malloc(sizeof(float *) * 14);
-    printf("Restricciones\n");
-    for (int i = 0; i < 14; i++)
-	{
-		RestrictionTable[i] = malloc(sizeof(float) * 14);
-
-	}
-
-    int number;
+    
     for(int i = 1; i < rest ;i++){
     	 for(int j = 0; j < keys;j++){
     	 	if( j != selectVariables){
@@ -263,9 +258,6 @@ void getRestricNumber(){
 
 void getRestric(){
 	const gchar* texto;
-	char simbolo;
-	Restricciones = malloc(sizeof(float *) * selectRestricciones+1);
-	int number;
     for(int i = 1; i < selectRestricciones+1;i++){
 
         texto = gtk_entry_get_text(GTK_ENTRY(initialTableRes[i][selectVariables]));
@@ -324,6 +316,7 @@ void btnAceptarVar_clicked(){
 void BTN_fun_Aceptar_clicked(){
 
     getFuntionNumber();
+    verbSelect = gtk_combo_box_get_active(GTK_COMBO_BOX(VerbContainer));
     gtk_widget_hide(FuncionW);
     createSetNodeDataRestriccion();
     gtk_widget_show_all(RestrictionW);
