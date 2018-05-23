@@ -40,6 +40,15 @@ double  FunctionTable[12];
 double RestrictionTable[13][13];
 int Restricciones[12];
 int interTables;
+int rows;
+int columns;
+int a_row = 0;
+int a_column = 0;
+bool big_m = false;
+
+void buildTable();
+void normal_simplex(double** table);
+int getExtraVariablesColumns();
 
 int main(int argc, char *argv[])
 {
@@ -87,27 +96,86 @@ int main(int argc, char *argv[])
     g_object_unref(builder);
     gtk_widget_show(mainW);
     gtk_main();
-
-    pruebaSimplex();
     return 0;
 }
 
-void pruebaSimplex()
-
+void buildTable
 {
-  int m = 3;
-  int n = 6;
+  rows = 1 + selectRestricciones;
+  columns = 1 + selectVariables + getExtraVariablesColumns() + 1;
+  printf("Table[%d][%d]\n", rows, columns);
   double** table;
-  table = (double**) malloc(sizeof(double *) * m);
-  for (int i = 0; i < n; i++)
+  table = (double**) malloc(sizeof(double *) * rows);
+  for (int i = 0; i < rows; i++)
 	{
-		table[i] = (double*) malloc(sizeof(double) * n);
+		table[i] = (double*) malloc(sizeof(double) * columns);
 	}
-  // simplex -------------------------------------------------------------------
-  table[0][0]=1.0;table[0][1]=-3.0;table[0][2]=-4.0;table[0][3]=0.0;table[0][4]=0.0;table[0][5]=0.0;
-  table[1][0]=0.0;table[1][1]=1.0;table[1][2]=1.0;table[1][3]=1.0;table[1][4]=0.0;table[1][5]=40.0;
-  table[2][0]=0.0;table[2][1]=1.0;table[2][2]=2.0;table[2][3]=0.0;table[2][4]=1.0;table[2][5]=60.0;
-  simplex(table, m, n, false);
+  printf("Holi\n");
+  if (big_m == true)
+  {
+    printf("a\n");
+  }
+  else
+  {
+    normal_simplex(table);
+  }
+}
+
+void normal_simplex(double** table)
+{
+  table[0][0] = 1;
+  for (int i = 1; i < rows; i++) { table[i][0] = 0; }
+  for (int j = 1; j < columns; j++)
+  {
+    if (j <= selectVariables)
+    {
+      table[0][j] = -1 * FunctionTable[j - 1];
+    }
+    else { table [0][j] = 0; }
+  }
+  for (int i = 1; i < rows; i++)
+  {
+    for (int j = 1; j < columns; j++)
+    {
+      if (j <= selectVariables)
+      {
+        table[i][j] = RestrictionTable[i][j-1];
+      }
+      else if (j == columns - 1)
+      {
+        table[i][j] = RestrictionTable[i][selectVariables + 1];
+      }
+    }
+  }
+  int a = 0;
+  int b = 0;
+  for (int i = 1; i < rows; i++)
+  {
+    b = 0;
+    for (int j = selectVariables + 1; j < columns - 1; j++)
+    {
+      if (a == b) {
+        table[i][j] = 1;
+      }
+      b += 1;
+    }
+    a += 1;
+  }
+  simplex(table, rows, columns, false);
+  //print_table(table, rows, columns);
+}
+
+int getExtraVariablesColumns()
+{
+  int temp = 0;
+  for (int i = 1; i <= selectRestricciones; i++)
+  {
+    printf("Restriccion: %d\n", Restricciones[i]);
+    if (Restricciones[i] == 0) { temp += 1; big_m = true;}
+    else if (Restricciones[i] == 1) { temp += 1; }
+    else if (Restricciones[i] == 2) { temp += 2; big_m = true; }
+  }
+  return temp;
 }
 
 void createSetNodeData()
@@ -168,7 +236,7 @@ void createSetNodeDataFuntion(){
         initialTableFunc[row][column] = gtk_entry_new();
         gtk_entry_set_width_chars(GTK_ENTRY(initialTableFunc[row][column]),9);
         gtk_grid_attach (GTK_GRID (tableDataFunc),initialTableFunc[row][column] , column, row, 1, 1);
-       
+
       if (row == 0){
         sprintf(columnVarName, "X%d", column + 1);
         gtk_entry_set_text (GTK_ENTRY(initialTableFunc[row][column]),columnVarName);
@@ -200,7 +268,7 @@ void createSetNodeDataRestriccion(){
         initialTableRes[row][column] = gtk_entry_new();
         gtk_entry_set_width_chars(GTK_ENTRY(initialTableRes[row][column]),9);
         gtk_grid_attach (GTK_GRID (tableDataRes),initialTableRes[row][column] , column, row, 1, 1);
-       
+
       if (row == 0){
       	if( column == keys ){
         	sprintf(columnVarName, "R");
@@ -228,7 +296,7 @@ void getNombresVar(){
     ///r_table =(char*)malloc ( selectVariables * sizeof (char));
     const gchar* texto;
     char ch[10];
-	   
+
     for(int i = 0; i < selectVariables-1;i++){
         texto = gtk_entry_get_text(GTK_ENTRY(initialTable[i][1]));
          sprintf(ch, "%8s\n", texto);
@@ -253,14 +321,14 @@ void getFuntionNumber(){
 void getRestricNumber(){
 	int keys = selectVariables + 2;
   	int rest = selectRestricciones + 1 ;
-    
+
     for(int i = 1; i < rest ;i++){
     	 for(int j = 0; j < keys;j++){
     	 	if( j != selectVariables){
         		RestrictionTable[i][j] = atof(gtk_entry_get_text(GTK_ENTRY(initialTableRes[i][j])));
         	printf("%f ",RestrictionTable[i][j]);
         	}
-        	
+
     	}
     	printf(" \n");
     }
@@ -281,10 +349,10 @@ void getRestric(){
         	Restricciones[i]= 2;
         	printf("%d\n", Restricciones[i]);
         }
-        
+
     }
 
-    
+
 
 
 }
@@ -297,19 +365,19 @@ bool validarOperadores(){
         texto = gtk_entry_get_text(GTK_ENTRY(initialTableRes[i][selectVariables]));
         if (!(strcmp(texto,"="))){
         	validar=true;
-        	 
+
         }else if (!(strcmp(texto,"<="))) {
         	validar=true;
-        	 
+
         }else if (!(strcmp(texto,">="))){
         	validar=true;
-      
+
         }else{
         	validar=false;
-        	 
+
         	break;
         }
-        
+
     }
     return validar;
 
@@ -381,7 +449,7 @@ void btnAceptarRes_clicked(){
 		validarOperadores();
 		getRestricNumber();
 		getRestric();
-		pruebaSimplex();
+		buildTable();
 	}else{
 		GtkWidget* dialog;
                     GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
@@ -392,7 +460,7 @@ void btnAceptarRes_clicked(){
 		gtk_widget_destroy (dialog);
 
 	}
-	
+
 }
 
 
