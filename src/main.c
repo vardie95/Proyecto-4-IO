@@ -25,6 +25,7 @@ GtkWidget       *RestrictionW;
 GtkWidget       ***initialTableRes;
 GtkWidget       *tableDataRes;
 GtkWidget       *containerTableRes;
+GtkWidget 		*getIntermediateValue;
 
 
 
@@ -34,10 +35,11 @@ int selectRestricciones;
 int verbSelect;
 const char *rowHeader[2] = {"Variables"};
 
-const char tablenameVar[10];
-int  FunctionTable[12];
-int RestrictionTable[13][13];
+char tablenameVar[10];
+double  FunctionTable[12];
+double RestrictionTable[13][13];
 int Restricciones[12];
+int interTables;
 
 int main(int argc, char *argv[])
 {
@@ -69,12 +71,15 @@ int main(int argc, char *argv[])
     containerTableFunc = GTK_WIDGET(gtk_builder_get_object(builder, "containerFuntionTable"));
     gtk_builder_connect_signals(builder, NULL);
 
-    VerbContainer = GTK_WIDGET(gtk_builder_get_object(builder, "containerFuntionTable"));
+    VerbContainer = GTK_WIDGET(gtk_builder_get_object(builder, "comboVerb"));
     gtk_builder_connect_signals(builder, NULL);
 
     RestrictionW= GTK_WIDGET(gtk_builder_get_object(builder, "window_res"));
     gtk_builder_connect_signals(builder, NULL);
     containerTableRes = GTK_WIDGET(gtk_builder_get_object(builder, "containerRestTable"));
+    gtk_builder_connect_signals(builder, NULL);
+
+    getIntermediateValue = GTK_WIDGET(gtk_builder_get_object(builder, "check_Intermedias"));
     gtk_builder_connect_signals(builder, NULL);
 
 
@@ -222,10 +227,14 @@ void createSetNodeDataRestriccion(){
 void getNombresVar(){
     ///r_table =(char*)malloc ( selectVariables * sizeof (char));
     const gchar* texto;
-    for(int i = 0; i < selectVariables;i++){
+    char ch[10];
+	   
+    for(int i = 0; i < selectVariables-1;i++){
         texto = gtk_entry_get_text(GTK_ENTRY(initialTable[i][1]));
-		///sprintf(tablenameVar[i],texto);
-        ///sprintf("%s\n",texto);
+         sprintf(ch, "%8s\n", texto);
+         tablenameVar[i]=ch;
+		 ///sprintf(tablenameVar[i],texto);
+         //printf("%s\n",tablenameVar[i]);
 
     }
 
@@ -233,10 +242,11 @@ void getNombresVar(){
 }
 
 void getFuntionNumber(){
-
+	verbSelect = gtk_combo_box_get_active(GTK_COMBO_BOX(VerbContainer));
+	printf("Verbo es: %d\n",verbSelect);
     for(int i = 0; i < selectVariables;i++){
-        FunctionTable[i] = atoi(gtk_entry_get_text(GTK_ENTRY(initialTableFunc[1][i])));
-        printf("%d\n",FunctionTable[i]);
+        FunctionTable[i] = atof(gtk_entry_get_text(GTK_ENTRY(initialTableFunc[1][i])));
+        printf("%f\n",FunctionTable[i]);
     }
 }
 
@@ -247,8 +257,8 @@ void getRestricNumber(){
     for(int i = 1; i < rest ;i++){
     	 for(int j = 0; j < keys;j++){
     	 	if( j != selectVariables){
-        		RestrictionTable[i][j] = atoi(gtk_entry_get_text(GTK_ENTRY(initialTableRes[i][j])));
-        	printf("%d ",RestrictionTable[i][j]);
+        		RestrictionTable[i][j] = atof(gtk_entry_get_text(GTK_ENTRY(initialTableRes[i][j])));
+        	printf("%f ",RestrictionTable[i][j]);
         	}
         	
     	}
@@ -274,11 +284,48 @@ void getRestric(){
         
     }
 
-    pruebaSimplex();
+    
 
 
 }
 
+bool validarOperadores(){
+	const gchar* texto;
+	bool validar=true;
+    for(int i = 1; i < selectRestricciones+1;i++){
+
+        texto = gtk_entry_get_text(GTK_ENTRY(initialTableRes[i][selectVariables]));
+        if (!(strcmp(texto,"="))){
+        	validar=true;
+        	 
+        }else if (!(strcmp(texto,"<="))) {
+        	validar=true;
+        	 
+        }else if (!(strcmp(texto,">="))){
+        	validar=true;
+      
+        }else{
+        	validar=false;
+        	 
+        	break;
+        }
+        
+    }
+    return validar;
+
+}
+
+/*void getInterTables(){
+
+	if (){
+		interTables=1;
+		printf("El valor del check %d\n",interTables );
+	}else{
+		interTables=0;
+		printf("El valor del check %d\n",interTables );
+	}
+}
+*/
 void on_BTNAceptar_clicked() {
             const gchar* texto;
 
@@ -316,7 +363,6 @@ void btnAceptarVar_clicked(){
 void BTN_fun_Aceptar_clicked(){
 
     getFuntionNumber();
-    verbSelect = gtk_combo_box_get_active(GTK_COMBO_BOX(VerbContainer));
     gtk_widget_hide(FuncionW);
     createSetNodeDataRestriccion();
     gtk_widget_show_all(RestrictionW);
@@ -324,11 +370,28 @@ void BTN_fun_Aceptar_clicked(){
 
 
 }
+
+
+
+
+
 void btnAceptarRes_clicked(){
-	free(initialTableFunc);
-	printf("Funcione!\n");
-	getRestricNumber();
-	getRestric();
+	if(validarOperadores()){
+		free(initialTableFunc);
+		validarOperadores();
+		getRestricNumber();
+		getRestric();
+		pruebaSimplex();
+	}else{
+		GtkWidget* dialog;
+                    GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
+                    dialog = gtk_message_dialog_new (GTK_WINDOW(mainW),flags,GTK_MESSAGE_ERROR,
+                                 GTK_BUTTONS_CLOSE,
+                                 "Error: Digite un Operador Correcto");
+		gtk_dialog_run (GTK_DIALOG (dialog));
+		gtk_widget_destroy (dialog);
+
+	}
 	
 }
 
