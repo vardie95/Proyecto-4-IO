@@ -35,6 +35,7 @@ const char *rowHeader[2] = {"Variables"};
 const char *tablenameVar;
 int *FunctionTable;
 int **RestrictionTable;
+int *Restricciones;
 
 int main(int argc, char *argv[])
 {
@@ -82,6 +83,7 @@ int main(int argc, char *argv[])
 }
 
 void pruebaSimplex()
+
 {
   int m = 3;
   int n = 6;
@@ -236,8 +238,8 @@ void getFuntionNumber(){
 }
 
 void getRestricNumber(){
-	int keys = selectVariables;
-  	int rest = selectRestricciones;
+	int keys = selectVariables + 2;
+  	int rest = selectRestricciones + 1 ;
     RestrictionTable = malloc(sizeof(float *) * 14);
     printf("Restricciones\n");
     for (int i = 0; i < 14; i++)
@@ -247,8 +249,8 @@ void getRestricNumber(){
 	}
 
     int number;
-    for(int i = 1; i < selectRestricciones + 1;i++){
-    	 for(int j = 0; j < selectVariables + 2;j++){
+    for(int i = 1; i < rest ;i++){
+    	 for(int j = 0; j < keys;j++){
     	 	if( j != selectVariables){
         		RestrictionTable[i][j] = atoi(gtk_entry_get_text(GTK_ENTRY(initialTableRes[i][j])));
         	printf("%d ",RestrictionTable[i][j]);
@@ -257,6 +259,32 @@ void getRestricNumber(){
     	}
     	printf(" \n");
     }
+}
+
+void getRestric(){
+	const gchar* texto;
+	char simbolo;
+	Restricciones = malloc(sizeof(float *) * selectRestricciones+1);
+	int number;
+    for(int i = 1; i < selectRestricciones+1;i++){
+
+        texto = gtk_entry_get_text(GTK_ENTRY(initialTableRes[i][selectVariables]));
+        if (!(strcmp(texto,"="))){
+        	Restricciones[i]= 0;
+        	printf("%d\n", Restricciones[i]);
+        }else if (!(strcmp(texto,"<="))) {
+        	Restricciones[i]= 1;
+        	printf("%d\n", Restricciones[i]);
+        }else if (!(strcmp(texto,">="))){
+        	Restricciones[i]= 2;
+        	printf("%d\n", Restricciones[i]);
+        }
+        
+    }
+
+    pruebaSimplex();
+
+
 }
 
 void on_BTNAceptar_clicked() {
@@ -305,7 +333,10 @@ void BTN_fun_Aceptar_clicked(){
 }
 void btnAceptarRes_clicked(){
 	free(initialTableFunc);
+	printf("Funcione!\n");
 	getRestricNumber();
+	getRestric();
+	
 }
 
 
