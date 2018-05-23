@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void buildTable
+void buildTable()
 {
   rows = 1 + selectRestricciones;
   columns = 1 + selectVariables + getExtraVariablesColumns() + 1;
@@ -119,6 +119,11 @@ void buildTable
   {
     normal_simplex(table);
   }
+}
+
+void big_m_simplex(double** table)
+{
+  
 }
 
 void normal_simplex(double** table)
