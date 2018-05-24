@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "components/simplex.c"
+
 GtkWidget       *mainW;
 GtkWidget       *gTextName;
 GtkWidget       *gComboVarItem;
@@ -52,8 +53,6 @@ int getExtraVariablesColumns();
 
 int main(int argc, char *argv[])
 {
-
-
     gtk_init(&argc, &argv);
 
     builder = gtk_builder_new();
@@ -123,7 +122,7 @@ void buildTable()
 
 void big_m_simplex(double** table)
 {
-  
+
 }
 
 void normal_simplex(double** table)
@@ -167,7 +166,6 @@ void normal_simplex(double** table)
     a += 1;
   }
   simplex(table, rows, columns, false);
-  //print_table(table, rows, columns);
 }
 
 int getExtraVariablesColumns()

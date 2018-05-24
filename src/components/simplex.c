@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "latex.c"
 
 int actual_column = 0;
 int actual_row = 0;
@@ -27,6 +28,7 @@ void set_num_variables(int num);
 // Functions definition --------------------------------------------------------
 void simplex(double** table, int rows, int columns, bool min)
 {
+  printf("Start SIMPLEX...\n");
   negs_left = verify_negs(table[0], columns);
   while (negs_left == true)
   {
