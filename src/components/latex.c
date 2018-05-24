@@ -2,14 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include <time.h>
-#include <sys/time.h>
 
 FILE * out;
 
 void createOutFile()
 {
-	out = fopen ("salida/salida.tex", "w");
+	out = fopen ("salida.tex", "w");
 }
 
 void writeHeader()
@@ -45,6 +43,6 @@ void closeFile()
 void showBeamer()
 {
 	closeFile();
-	system("pdflatex salida/salida.tex");
-	system("evince salida.pdf");
+	system("pdflatex salida.tex");
+	system("evince  salida.pdf");
 }

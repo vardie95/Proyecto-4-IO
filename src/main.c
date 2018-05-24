@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "components/simplex.c"
+#include "components/latex.c"
 
 GtkWidget       *mainW;
 GtkWidget       *gTextName;
@@ -455,9 +456,9 @@ bool validarOperadores(){
 
 }
 
-/*void getInterTables(){
+void getInterTables(){
 
-	if (){
+	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(getIntermediateValue))) {
 		interTables=1;
 		printf("El valor del check %d\n",interTables );
 	}else{
@@ -465,7 +466,6 @@ bool validarOperadores(){
 		printf("El valor del check %d\n",interTables );
 	}
 }
-*/
 void on_BTNAceptar_clicked() {
             const gchar* texto;
 
@@ -522,6 +522,10 @@ void btnAceptarRes_clicked(){
 		getRestricNumber();
 		getRestric();
 		buildTable();
+		getInterTables();
+		makeBeamer();
+		showBeamer();
+
 	}else{
 		GtkWidget* dialog;
                     GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;

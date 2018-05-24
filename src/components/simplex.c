@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "latex.c"
 
 int actual_column = 0;
 int actual_row = 0;
