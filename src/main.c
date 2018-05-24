@@ -49,6 +49,7 @@ bool big_m = false;
 
 void buildTable();
 void normal_simplex(double** table);
+void big_m_simplex(double** table);
 int getExtraVariablesColumns();
 
 int main(int argc, char *argv[])
@@ -102,6 +103,10 @@ void buildTable()
 {
   rows = 1 + selectRestricciones;
   columns = 1 + selectVariables + getExtraVariablesColumns() + 1;
+  if (big_m == true)
+  {
+    rows += 1;
+  }
   printf("Table[%d][%d]\n", rows, columns);
   double** table;
   table = (double**) malloc(sizeof(double *) * rows);
@@ -112,7 +117,7 @@ void buildTable()
   printf("Holi\n");
   if (big_m == true)
   {
-    printf("a\n");
+    big_m_simplex(table);
   }
   else
   {
@@ -120,8 +125,60 @@ void buildTable()
   }
 }
 
+int getArtVarPos()
+{
+  int temp = 0;
+  for (int i = 1; i <= selectRestricciones; i++)
+  {
+    if (Restricciones[i] == 1) { temp += 1; }
+    else if (Restricciones[i] == 2) { temp += 2; }
+  }
+  return temp;
+}
+
 void big_m_simplex(double** table)
 {
+  for (int j = 0; j < columns; j++)
+  {
+    if (j > selectVariables + getArtVarPos() - 1  && j < columns - 1)
+    {
+      table[0][j] = -1;
+    }
+    else
+    {
+      table[0][j] = 0;
+    }
+  }
+  table[1][0] = 1;
+  for (int i = 2; i < rows; i++) { table[i][0] = 0; }
+  for (int j = 1; j < columns; j++)
+  {
+    if (j <= selectVariables)
+    {
+      if (verbSelect == 0) {
+        table[1][j] = -1 * FunctionTable[j - 1];
+      }
+      else {
+        table[1][j] = FunctionTable[j - 1];
+      }
+    }
+    else { table[1][j] = 0; }
+  }
+  for (int i = 2; i < rows; i++)
+  {
+    for (int j = 1; j < columns; j++)
+    {
+      if (j <= selectVariables)
+      {
+        table[i][j] = RestrictionTable[i-1][j-1];
+      }
+      else if (j == columns - 1)
+      {
+        table[i][j] = RestrictionTable[i-1][selectVariables + 1];
+      }
+    }
+  }
+  print_table(table, rows, columns);
 
 }
 
@@ -133,7 +190,12 @@ void normal_simplex(double** table)
   {
     if (j <= selectVariables)
     {
-      table[0][j] = -1 * FunctionTable[j - 1];
+      if (verbSelect == 0) {
+        table[0][j] = -1 * FunctionTable[j - 1];
+      }
+      else {
+        table[0][j] = FunctionTable[j - 1];
+      }
     }
     else { table [0][j] = 0; }
   }
@@ -165,7 +227,15 @@ void normal_simplex(double** table)
     }
     a += 1;
   }
-  simplex(table, rows, columns, false);
+  if (verbSelect == 0)
+  {
+    simplex(table, rows, columns, false, true);
+  }
+  else
+  {
+    simplex(table, rows, columns, true, true);
+  }
+
 }
 
 int getExtraVariablesColumns()
@@ -173,7 +243,6 @@ int getExtraVariablesColumns()
   int temp = 0;
   for (int i = 1; i <= selectRestricciones; i++)
   {
-    printf("Restriccion: %d\n", Restricciones[i]);
     if (Restricciones[i] == 0) { temp += 1; big_m = true;}
     else if (Restricciones[i] == 1) { temp += 1; }
     else if (Restricciones[i] == 2) { temp += 2; big_m = true; }
@@ -329,11 +398,11 @@ void getRestricNumber(){
     	 for(int j = 0; j < keys;j++){
     	 	if( j != selectVariables){
         		RestrictionTable[i][j] = atof(gtk_entry_get_text(GTK_ENTRY(initialTableRes[i][j])));
-        	printf("%f ",RestrictionTable[i][j]);
+        	  //printf("%f ",RestrictionTable[i][j]);
         	}
 
     	}
-    	printf(" \n");
+    	//printf(" \n");
     }
 }
 

@@ -8,13 +8,14 @@ int actual_column = 0;
 int actual_row = 0;
 int num_variables;
 double z_value;
+bool showSteps;
 bool negs_left;
 bool min;
 bool unbounded = false;
 bool multiple_solutions = false;
 
 // Functions declaration -------------------------------------------------------
-void simplex(double** table, int rows, int columns, bool min);
+void simplex(double** table, int rows, int columns, bool min, bool show);
 void most_negative_column(double* table_row, int columns);
 void define_base_row(double** table, int rows, int columns);
 void apply_basic_division(double** table, int rows, int columns);
@@ -26,8 +27,9 @@ void print_table(double** table, int m, int n);
 void set_num_variables(int num);
 
 // Functions definition --------------------------------------------------------
-void simplex(double** table, int rows, int columns, bool min)
+void simplex(double** table, int rows, int columns, bool min, bool show)
 {
+  showSteps = show;
   printf("Start SIMPLEX...\n");
   negs_left = verify_negs(table[0], columns);
   while (negs_left == true)
