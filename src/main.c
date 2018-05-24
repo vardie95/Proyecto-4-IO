@@ -36,6 +36,7 @@ int selectVariables;
 int selectRestricciones;
 int verbSelect;
 const char *rowHeader[2] = {"Variables"};
+const gchar* Nombre;
 
 char tablenameVar[10];
 double  FunctionTable[12];
@@ -324,14 +325,14 @@ void createSetNodeDataFuntion(){
 void createSetNodeDataRestriccion(){
   int keys = selectVariables;
   int rest = selectRestricciones;
-  initialTableRes = calloc(13,sizeof(GtkWidget**));
+  initialTableRes = calloc(20,sizeof(GtkWidget**));
   char columnVarName[4];
 
   tableDataRes = gtk_grid_new ();
   gtk_container_add (GTK_CONTAINER (containerTableRes), tableDataRes);
 
-  for(int j = 0; j < keys + 4; j++) {
-    initialTableRes[j] = calloc(13,sizeof(GtkWidget*));
+  for(int j = 0; j < keys + 7; j++) {
+    initialTableRes[j] = calloc(20,sizeof(GtkWidget*));
   }
 
   for(int row =0; row < rest +1; row++)
@@ -467,14 +468,13 @@ void getInterTables(){
 	}
 }
 void on_BTNAceptar_clicked() {
-            const gchar* texto;
 
-            texto = gtk_entry_get_text(GTK_ENTRY(gTextName));
+            Nombre = gtk_entry_get_text(GTK_ENTRY(gTextName));
             ///printf("%s\n",texto);
             selectVariables = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(gComboVarItem));
             selectRestricciones = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(gComboResItem));
             //printf("%d\n",selectVariables);
-            if ((texto == NULL) || (texto[0] == '\0')) {
+            if ((Nombre == NULL) || (Nombre[0] == '\0')) {
                     GtkWidget* dialog;
                     GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
                     dialog = gtk_message_dialog_new (GTK_WINDOW(mainW),flags,GTK_MESSAGE_ERROR,
@@ -524,6 +524,8 @@ void btnAceptarRes_clicked(){
 		buildTable();
 		getInterTables();
 		makeBeamer();
+		slideMatematico(FunctionTable,selectVariables,verbSelect);
+		slideRestricciones(RestrictionTable,Restricciones, selectVariables,selectRestricciones);
 		showBeamer();
 
 	}else{
